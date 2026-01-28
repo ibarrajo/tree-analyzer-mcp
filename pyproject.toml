@@ -48,10 +48,10 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/YOUR_USERNAME/tree-analyzer-mcp"
-Documentation = "https://github.com/YOUR_USERNAME/tree-analyzer-mcp#readme"
-Repository = "https://github.com/YOUR_USERNAME/tree-analyzer-mcp.git"
-Issues = "https://github.com/YOUR_USERNAME/tree-analyzer-mcp/issues"
+Homepage = "https://github.com/ibarrajo/tree-analyzer-mcp"
+Documentation = "https://github.com/ibarrajo/tree-analyzer-mcp#readme"
+Repository = "https://github.com/ibarrajo/tree-analyzer-mcp.git"
+Issues = "https://github.com/ibarrajo/tree-analyzer-mcp/issues"
 
 [build-system]
 requires = ["hatchling"]

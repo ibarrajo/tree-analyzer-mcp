@@ -11,7 +11,7 @@ Thank you for your interest in contributing! This document provides guidelines f
 
 2. **Clone and Install**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/tree-analyzer-mcp
+   git clone https://github.com/ibarrajo/tree-analyzer-mcp
    cd tree-analyzer-mcp
 
    # Create virtual environment

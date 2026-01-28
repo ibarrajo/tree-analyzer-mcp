@@ -45,7 +45,7 @@ docker run -v /path/to/data:/app/data tree-analyzer-mcp
 ### From Source
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/tree-analyzer-mcp
+git clone https://github.com/ibarrajo/tree-analyzer-mcp
 cd tree-analyzer-mcp
 pip install -e .
 ```
@@ -131,7 +131,7 @@ analyze_source_coverage(
 
 ```bash
 # Clone repository
-git clone https://github.com/YOUR_USERNAME/tree-analyzer-mcp
+git clone https://github.com/ibarrajo/tree-analyzer-mcp
 cd tree-analyzer-mcp
 
 # Create virtual environment
@@ -317,7 +317,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 Built as part of the FamilySearch genealogy research system. Part of a suite of MCP servers:
 
-- [familysearch-mcp](https://github.com/YOUR_USERNAME/familysearch-mcp) - FamilySearch API integration
+- [familysearch-mcp](https://github.com/ibarrajo/familysearch-mcp) - FamilySearch API integration
 - **tree-analyzer-mcp** - Family tree analysis and error detection (this repository)
 - [research-sources-mcp](https://github.com/ibarrajo/research-sources-mcp) - External source search
 
@@ -329,5 +329,5 @@ Built as part of the FamilySearch genealogy research system. Part of a suite of 
 
 ## Support
 
-- [Issues](https://github.com/YOUR_USERNAME/tree-analyzer-mcp/issues)
-- [Discussions](https://github.com/YOUR_USERNAME/tree-analyzer-mcp/discussions)
+- [Issues](https://github.com/ibarrajo/tree-analyzer-mcp/issues)
+- [Discussions](https://github.com/ibarrajo/tree-analyzer-mcp/discussions)
