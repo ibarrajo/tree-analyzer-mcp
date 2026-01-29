@@ -2,14 +2,20 @@
 
 import sqlite3
 from pathlib import Path
-from typing import Optional
 
 # Database paths
-FS_CACHE_PATH = Path(__file__).parent.parent.parent.parent / "familysearch-mcp" / "data" / "cache.sqlite"
-SOURCES_CACHE_PATH = Path(__file__).parent.parent.parent.parent / "research-sources-mcp" / "data" / "sources-cache.sqlite"
+FS_CACHE_PATH = (
+    Path(__file__).parent.parent.parent.parent / "familysearch-mcp" / "data" / "cache.sqlite"
+)
+SOURCES_CACHE_PATH = (
+    Path(__file__).parent.parent.parent.parent
+    / "research-sources-mcp"
+    / "data"
+    / "sources-cache.sqlite"
+)
 
-_fs_conn: Optional[sqlite3.Connection] = None
-_sources_conn: Optional[sqlite3.Connection] = None
+_fs_conn: sqlite3.Connection | None = None
+_sources_conn: sqlite3.Connection | None = None
 
 
 def get_fs_db() -> sqlite3.Connection:

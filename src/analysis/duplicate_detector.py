@@ -1,11 +1,13 @@
 """Detect potential duplicate persons using multiple criteria."""
 
-from typing import List, Dict, Any
+from typing import Any
+
+from db.queries import get_all_persons_with_names
+
 from .name_disambiguation import compute_similarity_score
-from ..db.queries import get_all_persons_with_names
 
 
-def find_likely_duplicates(threshold: float = 0.85) -> List[Dict[str, Any]]:
+def find_likely_duplicates(threshold: float = 0.85) -> list[dict[str, Any]]:
     """
     Find persons that are very likely duplicates (high similarity threshold).
 
@@ -21,9 +23,9 @@ def find_likely_duplicates(threshold: float = 0.85) -> List[Dict[str, Any]]:
         return []
 
     # Group by exact normalized name for fast duplicate detection
-    name_groups: Dict[str, List[Dict[str, Any]]] = {}
+    name_groups: dict[str, list[dict[str, Any]]] = {}
     for person in all_persons:
-        key = (person.get('normalized_surname', ''), person.get('normalized_given', ''))
+        key = (person.get("normalized_surname", ""), person.get("normalized_given", ""))
         if key[0] or key[1]:
             name_groups.setdefault(key, []).append(person)
 
@@ -42,12 +44,14 @@ def find_likely_duplicates(threshold: float = 0.85) -> List[Dict[str, Any]]:
 
                 score = compute_similarity_score(p1, p2)
                 if score >= threshold:
-                    duplicates.append({
-                        'person1_id': p1['person_id'],
-                        'person1_name': p1.get('display_name', 'Unknown'),
-                        'person2_id': p2['person_id'],
-                        'person2_name': p2.get('display_name', 'Unknown'),
-                        'similarity_score': round(score, 3),
-                    })
+                    duplicates.append(
+                        {
+                            "person1_id": p1["person_id"],
+                            "person1_name": p1.get("display_name", "Unknown"),
+                            "person2_id": p2["person_id"],
+                            "person2_name": p2.get("display_name", "Unknown"),
+                            "similarity_score": round(score, 3),
+                        }
+                    )
 
-    return sorted(duplicates, key=lambda x: x['similarity_score'], reverse=True)
+    return sorted(duplicates, key=lambda x: x["similarity_score"], reverse=True)

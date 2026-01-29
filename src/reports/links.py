@@ -6,7 +6,9 @@ def person_url(person_id: str) -> str:
     return f"https://www.familysearch.org/tree/person/details/{person_id}"
 
 
-def search_url(given_name: str = "", surname: str = "", birth_year: str = "", birth_place: str = "") -> str:
+def search_url(
+    given_name: str = "", surname: str = "", birth_year: str = "", birth_place: str = ""
+) -> str:
     """Generate FamilySearch search URL with pre-filled parameters."""
     params = []
     if given_name:

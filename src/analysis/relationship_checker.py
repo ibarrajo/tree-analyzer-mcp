@@ -1,11 +1,11 @@
 """Relationship structure validation: detect circular ancestry and structural issues."""
 
-from typing import List, Dict, Any, Set
-from ..db.queries import get_parents, get_children, get_spouses
-from ..db.connection import get_fs_db
+from typing import Any
+
+from db.queries import get_children, get_parents, get_spouses
 
 
-def detect_circular_ancestry(person_id: str, max_depth: int = 20) -> List[Dict[str, Any]]:
+def detect_circular_ancestry(person_id: str, max_depth: int = 20) -> list[dict[str, Any]]:
     """
     Detect circular ancestry (person is their own ancestor).
 
@@ -23,13 +23,15 @@ def detect_circular_ancestry(person_id: str, max_depth: int = 20) -> List[Dict[s
             # Found a cycle
             cycle_start = path.index(current_id)
             cycle = path[cycle_start:] + [current_id]
-            issues.append({
-                'type': 'circular_ancestry',
-                'severity': 'critical',
-                'person_id': person_id,
-                'description': f"Circular ancestry detected: {' -> '.join(cycle)}",
-                'cycle': cycle,
-            })
+            issues.append(
+                {
+                    "type": "circular_ancestry",
+                    "severity": "critical",
+                    "person_id": person_id,
+                    "description": f"Circular ancestry detected: {' -> '.join(cycle)}",
+                    "cycle": cycle,
+                }
+            )
             return True
 
         if current_id in visited:
@@ -41,7 +43,7 @@ def detect_circular_ancestry(person_id: str, max_depth: int = 20) -> List[Dict[s
         # Check parents
         parents = get_parents(current_id)
         for parent in parents:
-            if dfs(parent['person_id'], depth + 1):
+            if dfs(parent["person_id"], depth + 1):
                 return True
 
         path.pop()
@@ -51,7 +53,7 @@ def detect_circular_ancestry(person_id: str, max_depth: int = 20) -> List[Dict[s
     return issues
 
 
-def check_relationship_structure(person_id: str) -> List[Dict[str, Any]]:
+def check_relationship_structure(person_id: str) -> list[dict[str, Any]]:
     """
     Check for structural issues in relationships.
 
@@ -65,30 +67,36 @@ def check_relationship_structure(person_id: str) -> List[Dict[str, Any]]:
     # Check parent count
     parents = get_parents(person_id)
     if len(parents) > 2:
-        issues.append({
-            'type': 'too_many_parents',
-            'severity': 'warning',
-            'person_id': person_id,
-            'description': f"Person has {len(parents)} parents (expected 0-2)",
-        })
+        issues.append(
+            {
+                "type": "too_many_parents",
+                "severity": "warning",
+                "person_id": person_id,
+                "description": f"Person has {len(parents)} parents (expected 0-2)",
+            }
+        )
 
     # Check for gender consistency in parent relationships
-    mothers = [p for p in parents if p.get('gender') == 'Female']
-    fathers = [p for p in parents if p.get('gender') == 'Male']
+    mothers = [p for p in parents if p.get("gender") == "Female"]
+    fathers = [p for p in parents if p.get("gender") == "Male"]
     if len(mothers) > 1:
-        issues.append({
-            'type': 'multiple_mothers',
-            'severity': 'warning',
-            'person_id': person_id,
-            'description': f"Person has {len(mothers)} mothers listed",
-        })
+        issues.append(
+            {
+                "type": "multiple_mothers",
+                "severity": "warning",
+                "person_id": person_id,
+                "description": f"Person has {len(mothers)} mothers listed",
+            }
+        )
     if len(fathers) > 1:
-        issues.append({
-            'type': 'multiple_fathers',
-            'severity': 'warning',
-            'person_id': person_id,
-            'description': f"Person has {len(fathers)} fathers listed",
-        })
+        issues.append(
+            {
+                "type": "multiple_fathers",
+                "severity": "warning",
+                "person_id": person_id,
+                "description": f"Person has {len(fathers)} fathers listed",
+            }
+        )
 
     # Check spouse relationships
     spouses = get_spouses(person_id)
@@ -96,23 +104,27 @@ def check_relationship_structure(person_id: str) -> List[Dict[str, Any]]:
         # Check for overlapping marriage dates
         marriages = []
         for spouse in spouses:
-            if spouse.get('marriage_date'):
+            if spouse.get("marriage_date"):
                 marriages.append(spouse)
 
         # Simple overlap check (would need date range parsing for complete check)
         # For now just flag if there are multiple concurrent spouses
         if len(marriages) > 1:
-            issues.append({
-                'type': 'multiple_concurrent_marriages',
-                'severity': 'info',
-                'person_id': person_id,
-                'description': f"Person has {len(spouses)} spouses (may need timeline verification)",
-            })
+            issues.append(
+                {
+                    "type": "multiple_concurrent_marriages",
+                    "severity": "info",
+                    "person_id": person_id,
+                    "description": f"Person has {len(spouses)} spouses (may need timeline verification)",
+                }
+            )
 
     return issues
 
 
-def validate_relationships_for_tree(root_person_id: str, max_persons: int = 1000) -> List[Dict[str, Any]]:
+def validate_relationships_for_tree(
+    root_person_id: str, max_persons: int = 1000
+) -> list[dict[str, Any]]:
     """
     Validate relationships for a tree rooted at a person.
 
@@ -135,13 +147,13 @@ def validate_relationships_for_tree(root_person_id: str, max_persons: int = 1000
 
         # Add relatives to visit
         for parent in get_parents(current):
-            if parent['person_id'] not in visited:
-                to_visit.append(parent['person_id'])
+            if parent["person_id"] not in visited:
+                to_visit.append(parent["person_id"])
         for child in get_children(current):
-            if child['person_id'] not in visited:
-                to_visit.append(child['person_id'])
+            if child["person_id"] not in visited:
+                to_visit.append(child["person_id"])
         for spouse in get_spouses(current):
-            if spouse['person_id'] not in visited:
-                to_visit.append(spouse['person_id'])
+            if spouse["person_id"] not in visited:
+                to_visit.append(spouse["person_id"])
 
     return all_issues

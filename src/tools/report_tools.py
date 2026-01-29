@@ -1,15 +1,16 @@
 """MCP tools for report generation."""
 
-from typing import Dict, Any
-from ..reports.generator import (
-    generate_person_profile,
+from typing import Any
+
+from reports.generator import (
     generate_audit_report,
     generate_name_clusters_report,
+    generate_person_profile,
     generate_research_leads,
 )
 
 
-def tool_generate_person_profile(person_id: str) -> Dict[str, Any]:
+def tool_generate_person_profile(person_id: str) -> dict[str, Any]:
     """
     Generate a detailed Markdown profile for a single person.
 
@@ -18,16 +19,13 @@ def tool_generate_person_profile(person_id: str) -> Dict[str, Any]:
     """
     output_file = generate_person_profile(person_id)
     return {
-        'person_id': person_id,
-        'output_file': output_file,
-        'message': f'Profile generated at {output_file}',
+        "person_id": person_id,
+        "output_file": output_file,
+        "message": f"Profile generated at {output_file}",
     }
 
 
-def tool_generate_audit_report(
-    root_person_id: str,
-    generations: int = 4
-) -> Dict[str, Any]:
+def tool_generate_audit_report(root_person_id: str, generations: int = 4) -> dict[str, Any]:
     """
     Generate a comprehensive tree audit report.
 
@@ -37,17 +35,16 @@ def tool_generate_audit_report(
     """
     output_file = generate_audit_report(root_person_id, generations)
     return {
-        'root_person_id': root_person_id,
-        'generations': generations,
-        'output_file': output_file,
-        'message': f'Audit report generated at {output_file}',
+        "root_person_id": root_person_id,
+        "generations": generations,
+        "output_file": output_file,
+        "message": f"Audit report generated at {output_file}",
     }
 
 
 def tool_generate_name_clusters_report(
-    surname_filter: str | None = None,
-    similarity_threshold: float = 0.60
-) -> Dict[str, Any]:
+    surname_filter: str | None = None, similarity_threshold: float = 0.60
+) -> dict[str, Any]:
     """
     Generate a report of name duplicate clusters.
 
@@ -57,17 +54,14 @@ def tool_generate_name_clusters_report(
     """
     output_file = generate_name_clusters_report(surname_filter, similarity_threshold)
     return {
-        'surname_filter': surname_filter or 'All',
-        'threshold': similarity_threshold,
-        'output_file': output_file,
-        'message': f'Name clusters report generated at {output_file}',
+        "surname_filter": surname_filter or "All",
+        "threshold": similarity_threshold,
+        "output_file": output_file,
+        "message": f"Name clusters report generated at {output_file}",
     }
 
 
-def tool_generate_research_leads(
-    root_person_id: str,
-    focus_area: str = 'all'
-) -> Dict[str, Any]:
+def tool_generate_research_leads(root_person_id: str, focus_area: str = "all") -> dict[str, Any]:
     """
     Generate prioritized research leads report.
 
@@ -77,8 +71,8 @@ def tool_generate_research_leads(
     """
     output_file = generate_research_leads(root_person_id, focus_area)
     return {
-        'root_person_id': root_person_id,
-        'focus_area': focus_area,
-        'output_file': output_file,
-        'message': f'Research leads report generated at {output_file}',
+        "root_person_id": root_person_id,
+        "focus_area": focus_area,
+        "output_file": output_file,
+        "message": f"Research leads report generated at {output_file}",
     }

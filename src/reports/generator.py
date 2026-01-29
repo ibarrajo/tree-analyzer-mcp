@@ -1,17 +1,24 @@
 """Report generator using Jinja2 templates."""
 
-from pathlib import Path
-from typing import Dict, Any, List
-from jinja2 import Environment, FileSystemLoader, select_autoescape
 from datetime import datetime
+from pathlib import Path
+
+from jinja2 import Environment, FileSystemLoader, select_autoescape
+
+from analysis.duplicate_detector import find_likely_duplicates
+from analysis.name_disambiguation import detect_name_clusters
+from analysis.relationship_checker import validate_relationships_for_tree
+from analysis.source_coverage import prioritize_source_research
+from analysis.timeline_validator import validate_all_timelines
+from db.queries import (
+    get_parents,
+    get_person_by_id,
+    get_person_facts,
+    get_person_sources,
+    get_spouses,
+)
 
 from .links import person_url
-from ..db.queries import get_person_by_id, get_person_facts, get_parents, get_spouses, get_person_sources
-from ..analysis.name_disambiguation import detect_name_clusters
-from ..analysis.timeline_validator import validate_all_timelines
-from ..analysis.relationship_checker import validate_relationships_for_tree
-from ..analysis.source_coverage import prioritize_source_research
-from ..analysis.duplicate_detector import find_likely_duplicates
 
 TEMPLATE_DIR = Path(__file__).parent / "templates"
 OUTPUT_DIR = Path(__file__).parent.parent.parent / "reports"
@@ -22,13 +29,13 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # Setup Jinja2 environment
 env = Environment(
     loader=FileSystemLoader(TEMPLATE_DIR),
-    autoescape=select_autoescape(['html', 'xml']),
+    autoescape=select_autoescape(["html", "xml"]),
     trim_blocks=True,
     lstrip_blocks=True,
 )
 
 # Add custom filters
-env.filters['person_url'] = person_url
+env.filters["person_url"] = person_url
 
 
 def generate_person_profile(person_id: str) -> str:
@@ -43,15 +50,15 @@ def generate_person_profile(person_id: str) -> str:
     sources = get_person_sources(person_id)
 
     context = {
-        'person': person,
-        'facts': facts,
-        'parents': parents,
-        'spouses': spouses,
-        'sources': sources,
-        'generated_at': datetime.now().isoformat(),
+        "person": person,
+        "facts": facts,
+        "parents": parents,
+        "spouses": spouses,
+        "sources": sources,
+        "generated_at": datetime.now().isoformat(),
     }
 
-    template = env.get_template('person_profile.md.j2')
+    template = env.get_template("person_profile.md.j2")
     content = template.render(context)
 
     output_file = OUTPUT_DIR / f"person_{person_id}.md"
@@ -67,53 +74,63 @@ def generate_audit_report(root_person_id: str, generations: int = 4) -> str:
         return f"Root person {root_person_id} not found"
 
     # Collect all analysis results
-    timeline_issues = validate_all_timelines(min_severity='warning')
+    timeline_issues = validate_all_timelines(min_severity="warning")
     relationship_issues = validate_relationships_for_tree(root_person_id, max_persons=500)
     source_priorities = prioritize_source_research(root_person_id, generations)
     duplicates = find_likely_duplicates(threshold=0.85)
 
     # Count by severity
-    critical_count = len([i for i in timeline_issues + relationship_issues if i.get('severity') == 'critical'])
-    warning_count = len([i for i in timeline_issues + relationship_issues if i.get('severity') == 'warning'])
+    critical_count = len(
+        [i for i in timeline_issues + relationship_issues if i.get("severity") == "critical"]
+    )
+    warning_count = len(
+        [i for i in timeline_issues + relationship_issues if i.get("severity") == "warning"]
+    )
 
     context = {
-        'root_person': root_person,
-        'generations': generations,
-        'timeline_issues': timeline_issues,
-        'relationship_issues': relationship_issues,
-        'source_priorities': source_priorities[:50],  # Top 50
-        'duplicates': duplicates[:20],  # Top 20
-        'critical_count': critical_count,
-        'warning_count': warning_count,
-        'generated_at': datetime.now().isoformat(),
+        "root_person": root_person,
+        "generations": generations,
+        "timeline_issues": timeline_issues,
+        "relationship_issues": relationship_issues,
+        "source_priorities": source_priorities[:50],  # Top 50
+        "duplicates": duplicates[:20],  # Top 20
+        "critical_count": critical_count,
+        "warning_count": warning_count,
+        "generated_at": datetime.now().isoformat(),
     }
 
-    template = env.get_template('full_audit.md.j2')
+    template = env.get_template("full_audit.md.j2")
     content = template.render(context)
 
-    output_file = OUTPUT_DIR / f"audit_{root_person_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+    output_file = (
+        OUTPUT_DIR / f"audit_{root_person_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+    )
     output_file.write_text(content)
 
     return str(output_file)
 
 
-def generate_name_clusters_report(surname_filter: str | None = None, threshold: float = 0.60) -> str:
+def generate_name_clusters_report(
+    surname_filter: str | None = None, threshold: float = 0.60
+) -> str:
     """Generate report of name duplicate clusters."""
     clusters = detect_name_clusters(surname_filter, threshold)
 
     context = {
-        'surname_filter': surname_filter or 'All',
-        'threshold': threshold,
-        'clusters': clusters,
-        'total_clusters': len(clusters),
-        'generated_at': datetime.now().isoformat(),
+        "surname_filter": surname_filter or "All",
+        "threshold": threshold,
+        "clusters": clusters,
+        "total_clusters": len(clusters),
+        "generated_at": datetime.now().isoformat(),
     }
 
-    template = env.get_template('name_clusters.md.j2')
+    template = env.get_template("name_clusters.md.j2")
     content = template.render(context)
 
     surname_suffix = f"_{surname_filter}" if surname_filter else "_all"
-    output_file = OUTPUT_DIR / f"name_clusters{surname_suffix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+    output_file = (
+        OUTPUT_DIR / f"name_clusters{surname_suffix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+    )
     output_file.write_text(content)
 
     return str(output_file)
@@ -124,16 +141,19 @@ def generate_research_leads(root_person_id: str, focus_area: str = "all") -> str
     source_priorities = prioritize_source_research(root_person_id, generations=5)
 
     context = {
-        'root_person_id': root_person_id,
-        'focus_area': focus_area,
-        'priorities': source_priorities[:30],  # Top 30
-        'generated_at': datetime.now().isoformat(),
+        "root_person_id": root_person_id,
+        "focus_area": focus_area,
+        "priorities": source_priorities[:30],  # Top 30
+        "generated_at": datetime.now().isoformat(),
     }
 
-    template = env.get_template('research_leads.md.j2')
+    template = env.get_template("research_leads.md.j2")
     content = template.render(context)
 
-    output_file = OUTPUT_DIR / f"research_leads_{root_person_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+    output_file = (
+        OUTPUT_DIR
+        / f"research_leads_{root_person_id}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.md"
+    )
     output_file.write_text(content)
 
     return str(output_file)
