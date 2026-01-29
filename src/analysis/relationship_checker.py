@@ -12,8 +12,8 @@ def detect_circular_ancestry(person_id: str, max_depth: int = 20) -> list[dict[s
     Uses DFS with cycle detection.
     """
     issues = []
-    visited = set()
-    path = []
+    visited: set[str] = set()
+    path: list[str] = []
 
     def dfs(current_id: str, depth: int) -> bool:
         if depth > max_depth:
@@ -132,7 +132,7 @@ def validate_relationships_for_tree(
     """
     # Collect all person IDs in tree (BFS from root)
     to_visit = [root_person_id]
-    visited = set()
+    visited: set[str] = set()
     all_issues = []
 
     while to_visit and len(visited) < max_persons:

@@ -17,7 +17,7 @@ def validate_person_timeline(person_id: str) -> list[dict[str, Any]]:
     - Parent ages (too young/old)
     - Children ages (too young/old)
     """
-    issues = []
+    issues: list[dict[str, Any]] = []
     person = get_person_by_id(person_id)
     if not person:
         return issues

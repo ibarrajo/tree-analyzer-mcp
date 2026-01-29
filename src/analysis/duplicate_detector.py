@@ -23,7 +23,7 @@ def find_likely_duplicates(threshold: float = 0.85) -> list[dict[str, Any]]:
         return []
 
     # Group by exact normalized name for fast duplicate detection
-    name_groups: dict[str, list[dict[str, Any]]] = {}
+    name_groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
     for person in all_persons:
         key = (person.get("normalized_surname", ""), person.get("normalized_given", ""))
         if key[0] or key[1]:
